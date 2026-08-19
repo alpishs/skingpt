@@ -1,6 +1,9 @@
-from typing import List
-
 from pydantic import BaseModel
+
+
+class PossibleCondition(BaseModel):
+    name: str
+    reason: str
 
 
 class AnalysisResponse(BaseModel):
@@ -9,9 +12,17 @@ class AnalysisResponse(BaseModel):
     symptoms: str
     status: str
     message: str
-    visual_observations: List[str] = []
-    possible_conditions: List[str] = []
-    confidence: str | None = None
-    recommendations: List[str] = []
-    seek_professional_help: bool = False
+
+    image_quality: str
+
+    visual_observations: list[str]
+    uncertainties: list[str]
+
+    possible_conditions: list[PossibleCondition]
+    confidence: str | None
+
+    recommendations: list[str]
+
+    seek_professional_help: bool
+
     disclaimer: str
