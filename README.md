@@ -1,3 +1,5 @@
+AI-powered dermatology assistant with multimodal image analysis, trusted medical RAG, explainable results, and patient history.
+                  
                   IMAGE
                     │
                     ▼
