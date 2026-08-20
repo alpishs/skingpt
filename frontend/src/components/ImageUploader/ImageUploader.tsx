@@ -1,16 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import {
+  ImagePlus,
+  UploadCloud,
+  Trash2,
+  CheckCircle,
+} from "lucide-react";
 
 interface ImageUploaderProps {
   onImageSelected: (file: File | null) => void;
 }
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-];
 
 export function ImageUploader({
   onImageSelected,
@@ -18,68 +16,36 @@ export function ImageUploader({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-    };
-  }, [preview]);
+  const [fileInfo, setFileInfo] = useState<{
+    name: string;
+    size: string;
+    type: string;
+    resolution: string;
+  } | null>(null);
 
   function handleFile(file: File) {
-    setError("");
-
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError("Please upload a JPG, PNG, or WebP image.");
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      setError("Image size must be less than 5 MB.");
-      return;
-    }
-
-    if (preview) {
-      URL.revokeObjectURL(preview);
-    }
-
-    const previewUrl = URL.createObjectURL(file);
-
-    setPreview(previewUrl);
     onImageSelected(file);
-  }
 
-  function handleFileChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const file = event.target.files?.[0];
+    const imageUrl = URL.createObjectURL(file);
+    setPreview(imageUrl);
 
-    if (file) {
-      handleFile(file);
-    }
-  }
+    const img = new Image();
 
-  function handleDrop(
-    event: React.DragEvent<HTMLDivElement>
-  ) {
-    event.preventDefault();
+    img.onload = () => {
+      setFileInfo({
+        name: file.name,
+        size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+        type: file.type,
+        resolution: `${img.width} × ${img.height}`,
+      });
+    };
 
-    const file = event.dataTransfer.files?.[0];
-
-    if (file) {
-      handleFile(file);
-    }
+    img.src = imageUrl;
   }
 
   function removeImage() {
-    if (preview) {
-      URL.revokeObjectURL(preview);
-    }
-
     setPreview(null);
-    setError("");
+    setFileInfo(null);
     onImageSelected(null);
 
     if (inputRef.current) {
@@ -88,73 +54,114 @@ export function ImageUploader({
   }
 
   return (
-    <div className="form-group">
-      <label className="form-label">
-        Skin image
-      </label>
+    <div className="space-y-5">
+      <div
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
 
-      {!preview ? (
-        <>
-          <div
-            className="upload-zone"
-            onDragOver={(event) => {
-              event.preventDefault();
-            }}
-            onDrop={handleDrop}
-            onClick={() => inputRef.current?.click()}
-          >
-            <div className="upload-icon">
-              +
-            </div>
+          const file = e.dataTransfer.files[0];
 
-            <p className="upload-title">
-              Upload a skin image
-            </p>
+          if (file) handleFile(file);
+        }}
+        className="cursor-pointer rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 p-8 text-center transition hover:border-blue-500 hover:bg-blue-100"
+      >
+        <UploadCloud className="mx-auto mb-4 h-10 w-10 text-blue-600" />
 
-            <p className="upload-description">
-              Drag & drop your image here or click to browse
-            </p>
+        <h3 className="font-semibold text-slate-800">
+          Drag & Drop your skin image here
+        </h3>
 
-            <p className="upload-hint">
-              JPG, PNG or WebP · Max 5 MB
-            </p>
+        <p className="mt-2 text-sm text-slate-500">
+          or click to browse JPG, PNG or WebP files.
+        </p>
 
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileChange}
-              hidden
-            />
-          </div>
-        </>
-      ) : (
-        <div className="image-preview-container">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+
+            if (file) handleFile(file);
+          }}
+        />
+      </div>
+
+      {preview && fileInfo && (
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <img
             src={preview}
-            alt="Selected skin"
-            className="image-preview"
+            alt="Skin preview"
+            className="h-72 w-full object-cover"
           />
 
-          <div className="image-preview-footer">
-            <span>Image selected</span>
+          <div className="space-y-4 p-5">
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle size={18} />
+
+              <span className="font-medium">
+                Image Ready for Analysis
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <Info label="Filename" value={fileInfo.name} />
+              <Info label="Size" value={fileInfo.size} />
+              <Info label="Format" value={fileInfo.type} />
+              <Info label="Resolution" value={fileInfo.resolution} />
+            </div>
 
             <button
-              type="button"
-              className="remove-image-button"
               onClick={removeImage}
+              className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-red-600 transition hover:bg-red-100"
             >
-              Remove
+              <Trash2 size={16} />
+              Remove Image
             </button>
           </div>
         </div>
       )}
 
-      {error && (
-        <p className="upload-error">
-          {error}
-        </p>
+      {!preview && (
+        <div className="rounded-xl bg-slate-50 p-4">
+          <div className="flex items-center gap-2 text-slate-600">
+            <ImagePlus size={18} />
+            <span className="font-medium">
+              AI Upload Tips
+            </span>
+          </div>
+
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-slate-500 text-sm">
+            <li>Use natural lighting.</li>
+            <li>Keep only one affected skin area in frame.</li>
+            <li>Avoid blurry or dark photos.</li>
+            <li>Do not use filters.</li>
+          </ul>
+        </div>
       )}
+    </div>
+  );
+}
+
+function Info({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl bg-slate-50 p-3">
+      <p className="text-slate-500 text-xs uppercase tracking-wide">
+        {label}
+      </p>
+
+      <p className="mt-1 font-medium text-slate-800">
+        {value}
+      </p>
     </div>
   );
 }

@@ -1,236 +1,219 @@
+
 import type { AnalysisResponse } from "../../types/analysis";
+import {
+  ShieldAlert,
+  Sparkles,
+  CheckCircle2,
+  AlertTriangle,
+  BookOpen,
+} from "lucide-react";
 
 interface AnalysisResultProps {
   result: AnalysisResponse;
 }
 
-export function AnalysisResult({
-  result,
-}: AnalysisResultProps) {
+export function AnalysisResult({ result }: AnalysisResultProps) {
   return (
-    <>
+    <div className="space-y-8">
       {/* Header */}
-      <div className="result-header">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="result-title">
+          <h2 className="text-3xl font-bold text-slate-900">
             Analysis Result
           </h2>
 
-          <p className="result-subtitle">
-            AI-assisted analysis based on your image and symptoms.
+          <p className="mt-2 text-slate-500">
+            AI-assisted analysis based on your uploaded image and symptoms.
           </p>
         </div>
 
-        <span className="status">
-          {result.status}
+        <span className="rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
+          {result.status.toUpperCase()}
         </span>
       </div>
 
-      {/* AI Generated Badge */}
-      <div className="ai-generated-badge">
-        <span className="ai-generated-icon">
-          ✦
-        </span>
-
-        <span>
-          AI-generated analysis
-        </span>
+      {/* AI Badge */}
+      <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
+        <Sparkles size={16} />
+        AI-generated analysis
       </div>
 
       {/* Safety Banner */}
-      <div className="safety-banner">
-        <div className="safety-banner-icon">
-          ⓘ
-        </div>
+      <div className="flex gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <ShieldAlert className="mt-1 text-amber-600" />
 
         <div>
-          <strong>
+          <h3 className="font-semibold text-amber-700">
             Not a diagnosis
-          </strong>
+          </h3>
 
-          <p>
-            This analysis is for informational purposes only.
-            SkinGPT cannot confirm a medical condition from an
-            image. Please consult a qualified healthcare
-            professional for diagnosis or treatment.
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            SkinGPT provides educational AI-assisted information.
+            It cannot confirm a medical condition from an image alone.
+            Consult a qualified healthcare professional for diagnosis
+            or treatment.
           </p>
         </div>
       </div>
 
       {/* Symptoms */}
-      <div className="result-section">
-        <h3>
-          Symptoms
-        </h3>
-
-        <p>
+      <Section title="Symptoms">
+        <p className="rounded-xl bg-slate-50 p-4 text-slate-700">
           {result.symptoms || "No symptoms provided."}
         </p>
-      </div>
+      </Section>
 
       {/* Image Quality */}
-      <div className="result-section">
-        <h3>
-          Image Quality
-        </h3>
-
-        <span className="quality-badge">
+      <Section title="Image Quality">
+        <span className="inline-flex rounded-full bg-green-100 px-4 py-2 font-medium capitalize text-green-700">
           {result.image_quality}
         </span>
-      </div>
+      </Section>
 
       {/* Visual Observations */}
-      <div className="result-section">
-        <h3>
-          Visible Observations
-        </h3>
+      <Section title="Visible Observations">
+        <div className="space-y-3">
+          {result.visual_observations?.map((item, index) => (
+            <div
+              key={index}
+              className="flex items-start gap-3 rounded-xl bg-slate-50 p-4"
+            >
+              <CheckCircle2 className="mt-1 text-green-600" size={18} />
 
-        {result.visual_observations?.length > 0 ? (
-          <ul className="observation-list">
-            {result.visual_observations.map(
-              (observation, index) => (
-                <li key={index}>
-                  {observation}
-                </li>
-              )
-            )}
-          </ul>
-        ) : (
-          <p>
-            No visual observations available.
-          </p>
-        )}
-      </div>
+              <p className="text-slate-700">{item}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       {/* Uncertainties */}
       {result.uncertainties?.length > 0 && (
-        <div className="result-section uncertainty-section">
-          <h3>
-            Uncertainties
-          </h3>
+        <Section title="Uncertainties">
+          <div className="space-y-3">
+            {result.uncertainties.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4"
+              >
+                <AlertTriangle
+                  className="mt-1 text-yellow-600"
+                  size={18}
+                />
 
-          <ul className="observation-list">
-            {result.uncertainties.map(
-              (uncertainty, index) => (
-                <li key={index}>
-                  {uncertainty}
-                </li>
-              )
-            )}
-          </ul>
-        </div>
+                <p className="text-slate-700">{item}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
       )}
 
       {/* Possible Explanations */}
       {result.possible_conditions?.length > 0 && (
-        <div className="result-section">
-          <h3>
-            Possible Explanations
-          </h3>
+        <Section title="Possible Explanations">
+          <div className="grid gap-4">
+            {result.possible_conditions.map((condition, index) => (
+              <div
+                key={index}
+                className="rounded-2xl border border-blue-100 bg-blue-50 p-5"
+              >
+                <h4 className="font-semibold text-blue-700">
+                  {condition.name}
+                </h4>
 
-          <div className="condition-list">
-            {result.possible_conditions.map(
-              (condition, index) => (
-                <div
-                  key={index}
-                  className="condition-card"
-                >
-                  <strong>
-                    {condition.name}
-                  </strong>
-
-                  <p>
-                    {condition.reason}
-                  </p>
-                </div>
-              )
-            )}
+                <p className="mt-2 text-sm leading-6 text-slate-700">
+                  {condition.reason}
+                </p>
+              </div>
+            ))}
           </div>
-        </div>
+        </Section>
       )}
 
       {/* Recommendations */}
       {result.recommendations?.length > 0 && (
-        <div className="result-section">
-          <h3>
-            General Recommendations
-          </h3>
-
-          <ul className="observation-list">
-            {result.recommendations.map(
-              (recommendation, index) => (
-                <li key={index}>
-                  {recommendation}
-                </li>
-              )
-            )}
-          </ul>
-        </div>
+        <Section title="General Recommendations">
+          <div className="space-y-3">
+            {result.recommendations.map((item, index) => (
+              <div
+                key={index}
+                className="rounded-xl bg-green-50 p-4 text-green-700"
+              >
+                • {item}
+              </div>
+            ))}
+          </div>
+        </Section>
       )}
 
-      {/* Professional Help */}
-      {result.seek_professional_help && (
-        <div className="professional-help-banner">
-          <strong>
-            Consider speaking with a healthcare professional
-          </strong>
-
-          <p>
-            Based on the available information, professional
-            evaluation may be appropriate.
-          </p>
-        </div>
-      )}
-
-      {/* AI Confidence */}
+      {/* Confidence */}
       {result.confidence && (
-        <div className="result-section">
-          <h3>
-            AI Confidence
-          </h3>
-
-          <span className="quality-badge">
+        <Section title="AI Confidence">
+          <span className="inline-flex rounded-full bg-indigo-100 px-4 py-2 font-medium capitalize text-indigo-700">
             {result.confidence}
           </span>
-        </div>
+        </Section>
       )}
 
       {/* References */}
       {(result.references ?? []).length > 0 && (
-        <div className="result-section">
-          <h3>
-            References
-          </h3>
+        <Section title="Trusted References">
+          <div className="space-y-3">
+            {(result.references ?? []).map((ref, index) => (
+              <a
+                key={index}
+                href={ref.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between rounded-xl border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-slate-50"
+              >
+                <div className="flex items-center gap-3">
+                  <BookOpen className="text-blue-600" size={18} />
 
-          <div className="reference-list">
-            {(result.references ?? []).map(
-              (reference, index) => (
-                <a
-                  key={index}
-                  href={reference.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="reference-card"
-                >
-                  <strong>
-                    {reference.title}
-                  </strong>
+                  <div>
+                    <p className="font-medium text-slate-800">
+                      {ref.title}
+                    </p>
 
-                  <span>
-                    {reference.source}
-                  </span>
-                </a>
-              )
-            )}
+                    <p className="text-sm text-slate-500">
+                      {ref.source}
+                    </p>
+                  </div>
+                </div>
+
+                <span className="text-blue-600 text-sm font-medium">
+                  Open →
+                </span>
+              </a>
+            ))}
           </div>
-        </div>
+        </Section>
       )}
 
-      {/* Final Disclaimer */}
-      <p className="disclaimer">
-        {result.disclaimer ||
-          "SkinGPT provides AI-assisted information and is not a substitute for professional medical advice."}
-      </p>
-    </>
+      {/* Disclaimer */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+        <p className="text-xs leading-6 text-slate-500">
+          {result.disclaimer ||
+            "SkinGPT provides AI-assisted educational information and should not be used as a substitute for professional medical advice."}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-4">
+      <h3 className="text-xl font-semibold text-slate-900">
+        {title}
+      </h3>
+
+      {children}
+    </section>
   );
 }
