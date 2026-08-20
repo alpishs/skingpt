@@ -31,5 +31,8 @@ export interface AnalysisResponse {
   disclaimer: string;
 
   references: Reference[];
+
+  skin_score: number;
+  skin_level: string;
 }
 

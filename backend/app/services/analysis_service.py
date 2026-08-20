@@ -1,5 +1,6 @@
 import uuid
 
+from app.services.scoring_service import calculate_skin_score
 from app.services.llm_service import generate_response
 from app.services.rag_service import search_knowledge
 from app.services.vision_service import analyze_image
@@ -43,6 +44,12 @@ def create_analysis(
         knowledge_context=knowledge,
     )
 
+    skin_score_result = calculate_skin_score(
+        confidence=ai_response["confidence"],
+        possible_conditions=ai_response["possible_conditions"],
+        visual_observations=visual_analysis["visual_observations"],
+    )
+
     return {
         "analysis_id": analysis_id,
         "image_filename": image_path.split("/")[-1],
@@ -79,6 +86,8 @@ def create_analysis(
         "disclaimer": ai_response[
             "safety_note"
         ],
+        "skin_score": skin_score_result["skin_score"],
+        "skin_level": skin_score_result["skin_level"],
         "references": [
             {
                 "title": item["title"],

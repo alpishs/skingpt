@@ -71,7 +71,11 @@ Do not provide a diagnosis.
                 "content": prompt,
                 "images": [image_path],
             },
-        ],
+        ], 
+        options={
+            "temperature": 0,
+            "num_ctx": 8192,
+        },
     )
 
     content = response["message"]["content"]

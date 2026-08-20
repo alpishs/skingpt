@@ -26,3 +26,6 @@ class AnalysisResponse(BaseModel):
     seek_professional_help: bool
 
     disclaimer: str
+
+    skin_score: int
+    skin_level: str

@@ -135,6 +135,7 @@ SkinGPT response.
         format=RESPONSE_SCHEMA,
         options={
             "temperature": 0,
+            "num_ctx": 8192,
         },
     )
 

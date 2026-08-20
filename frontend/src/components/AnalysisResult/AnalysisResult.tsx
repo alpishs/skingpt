@@ -1,4 +1,5 @@
 
+import { SkinScoreCard } from "./SkinScoreCard";
 import type { AnalysisResponse } from "../../types/analysis";
 import {
   ShieldAlert,
@@ -56,6 +57,11 @@ export function AnalysisResult({ result }: AnalysisResultProps) {
         </div>
       </div>
 
+      <SkinScoreCard
+        score={result.skin_score}
+        level={result.skin_level}
+      />
+      
       {/* Symptoms */}
       <Section title="Symptoms">
         <p className="rounded-xl bg-slate-50 p-4 text-slate-700">

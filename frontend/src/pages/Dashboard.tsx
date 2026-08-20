@@ -29,7 +29,7 @@ export default function Dashboard() {
         image,
         symptoms,
       });
-
+      console.log("Analysis Response:", response);
       setResult(response);
     } catch (error) {
       console.error(error);
